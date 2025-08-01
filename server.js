@@ -40,7 +40,7 @@ createServer((req, res) => { // options before () for https
 
             // populate url parameters
             if (req.url.includes("?")) {
-                const urlParams = new URLSearchParams(req.url);
+                const urlParams = new URLSearchParams(req.url.split("?", 2)[1]);
 
                 for (const [key, value] of urlParams) {
                     params[key] = value;

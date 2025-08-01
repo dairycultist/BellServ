@@ -132,50 +132,54 @@ const endpoints = [
             });
         }
     },
-    // {
-    //     regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
-    //     onMatch: (req, res, db, body, params) => {
+    { // we are simply ignoring filters for now. in the future we should associate a filter and relevant filter information with a User
+        regex: /^POST \/_matrix\/client\/v3\/user\/.+\/filter$/,
+        onMatch: (req, res, db, body, params) => {
 
-    //         respond(req, res, 200, {
-    //             "next_batch": "cat",
-    //             "rooms": {
-    //                 "invite": {
-    //                     "!696r7674:example.com": {
-    //                         "invite_state": {
-    //                             "events": [
-    //                                 {
-    //                                 "content": {
-    //                                     "name": "My Room Name"
-    //                                 },
-    //                                 "sender": "@alice:example.com",
-    //                                 "state_key": "",
-    //                                 "type": "m.room.name"
-    //                                 },
-    //                                 {
-    //                                 "content": {
-    //                                     "membership": "invite"
-    //                                 },
-    //                                 "sender": "@alice:example.com",
-    //                                 "state_key": "@bob:example.com",
-    //                                 "type": "m.room.member"
-    //                                 }
-    //                             ]
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         });
-    //     }
-    // },
-    // {
-    //     regex: /^POST \/_matrix\/client\/v3\/user\/.+\/filter$/,
-    //     onMatch: (req, res, db, body, params) => {
+            respond(req, res, 200, {
+                "filter_id": "1234"
+            });
+        }
+    },
+    {
+        regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
+        onMatch: (req, res, db, body, params) => {
 
-    //         respond(req, res, 200, {
-    //             "filter_id": "1234"
-    //         });
-    //     }
-    // },
+            console.log(params);
+
+            respond(req, res, 404, {});
+
+            // respond(req, res, 200, {
+            //     "next_batch": "cat",
+            //     "rooms": {
+            //         "invite": {
+            //             "!696r7674:example.com": {
+            //                 "invite_state": {
+            //                     "events": [
+            //                         {
+            //                         "content": {
+            //                             "name": "My Room Name"
+            //                         },
+            //                         "sender": "@alice:example.com",
+            //                         "state_key": "",
+            //                         "type": "m.room.name"
+            //                         },
+            //                         {
+            //                         "content": {
+            //                             "membership": "invite"
+            //                         },
+            //                         "sender": "@alice:example.com",
+            //                         "state_key": "@bob:example.com",
+            //                         "type": "m.room.member"
+            //                         }
+            //                     ]
+            //                 }
+            //             }
+            //         }
+            //     }
+            // });
+        }
+    },
 ];
 
 module.exports = {
