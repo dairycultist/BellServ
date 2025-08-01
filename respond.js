@@ -106,9 +106,9 @@ const endpoints = [
 
             // store DeviceKeys and DeviceSignatures in db as stringified JSON to respond with once queried for them
             if (body.device_keys)
-                db.run(`UPDATE Users SET DeviceKeys = '${body.device_keys.keys}', DeviceSignatures = '${body.device_keys.signatures}' WHERE DeviceID = '${body.device_keys.device_id}';`);
+                db.run(`UPDATE Users SET DeviceKeys = '${JSON.stringify(body.device_keys.keys)}', DeviceSignatures = '${JSON.stringify(body.device_keys.signatures)}' WHERE DeviceID = '${body.device_keys.device_id}';`);
 
-            // count one_time_keys for response
+            // count one_time_keys for response (not storing them since idk what they're for)
             let oneTimeKeyCount = 0;
 
             for (format in body.one_time_keys)
@@ -128,7 +128,7 @@ const endpoints = [
 
             let deviceKeys = {};
 
-            db.each("SELECT UserIDLocalPart, DeviceID FROM Users", (err, row) => {
+            db.each("SELECT UserIDLocalPart, DeviceID, DeviceKeys, DeviceSignatures FROM Users", (err, row) => {
 
                 let userID = `@${ row.UserIDLocalPart }:fatfur.xyz`;
 
@@ -138,8 +138,8 @@ const endpoints = [
                         "algorithms": "signed_curve25519",
                         "user_id": userID,
                         "device_id": row.DeviceID,
-                        "keys": {},
-                        "signatures": {}
+                        "keys": JSON.parse(body.DeviceKeys),
+                        "signatures": JSON.parse(body.DeviceSignatures)
                     };
 
                     delete body.device_keys[userID];
