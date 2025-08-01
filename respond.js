@@ -138,8 +138,8 @@ const endpoints = [
                         "algorithms": "signed_curve25519",
                         "user_id": userID,
                         "device_id": row.DeviceID,
-                        "keys": JSON.parse(body.DeviceKeys),
-                        "signatures": JSON.parse(body.DeviceSignatures)
+                        "keys": JSON.parse(row.DeviceKeys),
+                        "signatures": JSON.parse(row.DeviceSignatures)
                     };
 
                     delete body.device_keys[userID];

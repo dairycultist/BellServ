@@ -3,16 +3,23 @@ const sqlite3 = require("sqlite3").verbose(); // npm install sqlite3
 const { createServer } = require("node:http"); // switch to https later
 const { respond, endpoints } = require("./respond.js");
 
-const db = new sqlite3.Database(":memory:"); // https://www.npmjs.com/package/sqlite3
+const db = new sqlite3.Database("db"); // https://www.npmjs.com/package/sqlite3
 
 db.serialize(() => {
 
-    // we assume the user only has one device lol
-    db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT, DeviceKeys TEXT, DeviceSignatures TEXT);");
+    db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='Users';", (err, row) => {
+        
+        // create Users table if it doesn't exist
+        if (!row) {
+            
+            // we assume the user only has one device lol
+            db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT, DeviceKeys TEXT, DeviceSignatures TEXT);");
 
-    // insert test users
-    db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '', '{}', '{}');");
-    db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '', '{}', '{}');");
+            // insert test users
+            db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '', '{}', '{}');");
+            db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '', '{}', '{}');");
+        }
+    });
 });
 
 // const options = {
