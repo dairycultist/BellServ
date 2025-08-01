@@ -1,14 +1,13 @@
 const fs = require("fs");
 // const qs = require("querystring");
-const { createServer } = require("node:http");
-// const { createServer } = require("node:https");
+const { createServer } = require("node:https");
 
-// const options = {
-//     key: fs.readFileSync("../private.key.pem"), // path to ssl PRIVATE key from Porkbun
-//     cert: fs.readFileSync("../domain.cert.pem"),// path to ssl certificate from Porkbun
-// };
+const options = {
+    key: fs.readFileSync("../private.key.pem"), // path to ssl PRIVATE key from Porkbun
+    cert: fs.readFileSync("../domain.cert.pem"),// path to ssl certificate from Porkbun
+};
 
-const server = createServer((req, res) => { // put options before (req, res)
+const server = createServer(options, (req, res) => {
 
     var status = 404;
     var body = {};
@@ -19,7 +18,24 @@ const server = createServer((req, res) => { // put options before (req, res)
             status = 200;
             body = {
                 "versions": [
-                    "v1.15"
+                    "r0.0.1",
+                    "r0.1.0",
+                    "r0.2.0",
+                    "r0.3.0",
+                    "r0.4.0",
+                    "r0.5.0",
+                    "r0.6.0",
+                    "r0.6.1",
+                    "v1.1",
+                    "v1.2",
+                    "v1.3",
+                    "v1.4",
+                    "v1.5",
+                    "v1.8",
+                    "v1.11",
+                    "v1.12",
+                    "v1.13",
+                    "v1.14"
                 ]
             };
             break;
@@ -28,11 +44,11 @@ const server = createServer((req, res) => { // put options before (req, res)
     res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
     res.end(JSON.stringify(body));
 
-    console.log(req.method + " " + req.url + " >> " + status);
+    console.log("(" + status + ") " + req.method + " " + req.url);
 });
 
-server.listen(3000, "localhost", () => { // 443
+server.listen(443, () => {
 
-    console.log(`Starting @ http://localhost:3000/`);
+    console.log(`Starting @ http://0.0.0.0:443/`);
 });
 
