@@ -122,16 +122,20 @@ const endpoints = [
             });
         }
     },
-    // {
-    //     regex: /^GET \/_matrix\/client\/v3\/profile\/(.+)$/,
-    //     onMatch: (req, res, db, body, params) => {
+    {
+        regex: /^GET \/_matrix\/client\/v3\/profile\/(.+)$/,
+        onMatch: (req, res, db, body, params) => {
 
-    //         respond(req, res, 200, {
-    //             "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
-    //             "displayname": "Test User"
-    //         });
-    //     }
-    // },
+            console.log(params);
+
+            respond(req, res, 404, {});
+
+            // respond(req, res, 200, {
+            //     "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
+            //     "displayname": "Test User"
+            // });
+        }
+    },
     // {
     //     regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
     //     onMatch: (req, res, db, body, params) => {

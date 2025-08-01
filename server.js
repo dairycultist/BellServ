@@ -26,18 +26,25 @@ createServer((req, res) => { // options before () for https
     // go through every endpoint to find a match
     for (let endpoint of endpoints) {
 
-        if (request.match(endpoint.regex)) {
+        let matched;
+
+        if (matched = request.match(endpoint.regex)) {
 
             let body = "";
             let params = {};
 
-            // populate path parameters (TODO)
+            // populate path parameters (matched 0 is the matched string, 1+ are the capture groups)
+            for (let i = 1; i < matched.length; i++) {
+                params[i] = matched[i];
+            }
 
             // populate url parameters
-            const urlParams = new URLSearchParams(req.url);
+            if (req.url.includes("?")) {
+                const urlParams = new URLSearchParams(req.url);
 
-            for (const [key, value] of urlParams) {
-                params[key] = value;
+                for (const [key, value] of urlParams) {
+                    params[key] = value;
+                }
             }
 
             // populate body and call endpoint
@@ -47,9 +54,9 @@ createServer((req, res) => { // options before () for https
 
             req.on("end", () => {
                 try {
-                    endpoint.onMatch(req, res, db, JSON.parse(body), {});
+                    endpoint.onMatch(req, res, db, JSON.parse(body), params);
                 } catch (error) {
-                    endpoint.onMatch(req, res, db, {}, {}); // assume body doesn't exist, and NOT that the JSON is formatted incorrectly
+                    endpoint.onMatch(req, res, db, {}, params); // assume body doesn't exist, and NOT that the JSON is formatted incorrectly
                 }
             });
 
