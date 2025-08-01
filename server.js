@@ -86,8 +86,18 @@ const server = createServer((req, res) => { // options before () for https
         
         case "POST /_matrix/client/v3/keys/upload":
             passReqBody(req, res, (json) => {
+
+                let signedCount = 0;
+
+                for (format in json.one_time_keys) {
+                    signedCount++;
+                }
                 
-                respond(req, res, 200, { "one_time_key_counts": {} });
+                respond(req, res, 200, {
+                    "one_time_key_counts": {
+                        "signed_curve25519": signedCount
+                    }
+                });
             });
             return;
     }
