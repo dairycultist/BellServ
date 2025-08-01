@@ -1,7 +1,6 @@
 const fs = require("fs");
 const sqlite3 = require("sqlite3").verbose(); // npm install sqlite3
 const { createServer } = require("node:http"); // switch to https later
-
 const { respond, endpoints } = require("./respond.js");
 
 // https://www.npmjs.com/package/sqlite3
@@ -36,9 +35,9 @@ createServer((req, res) => { // options before () for https
 
             req.on("end", () => {
                 try {
-                    endpoint.onMatch(req, res, JSON.parse(body), {});
+                    endpoint.onMatch(req, res, db, JSON.parse(body), {});
                 } catch (error) {
-                    endpoint.onMatch(req, res, {}, {}); // assume body doesn't exist, and NOT that the JSON is formatted incorrectly
+                    endpoint.onMatch(req, res, db, {}, {}); // assume body doesn't exist, and NOT that the JSON is formatted incorrectly
                 }
             });
 

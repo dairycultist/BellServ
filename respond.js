@@ -12,17 +12,22 @@ function respond(req, res, status, body) {
     console.log("(" + status + ") " + req.method + " " + req.url);
 }
 
-const endpoints = [ // params is both path params and query params!
+/*
+ * onMatch(req, res, db, body, params)
+ * - params includes both path params (0, 1, 2...) and query params ("key1", "key2", "key3"...)
+ */
+
+const endpoints = [
     {
         regex: /^OPTIONS .+$/,
-        onMatch: (req, res, body, params) => {
+        onMatch: (req, res, db, body, params) => {
 
             respond(req, res, 204, {}); // 204 = No Content, just needs info from headers
         }
     },
     {
         regex: /^GET \/_matrix\/client\/v3\/profile\/(.+)$/,
-        onMatch: (req, res, body, params) => {
+        onMatch: (req, res, db, body, params) => {
 
             respond(req, res, 200, {
                 "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
@@ -32,7 +37,7 @@ const endpoints = [ // params is both path params and query params!
     },
     {
         regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
-        onMatch: (req, res, body, params) => {
+        onMatch: (req, res, db, body, params) => {
 
             respond(req, res, 200, {
                 "next_batch": "cat",
@@ -67,7 +72,7 @@ const endpoints = [ // params is both path params and query params!
     },
     {
         regex: /^POST \/_matrix\/client\/v3\/user\/.+\/filter$/,
-        onMatch: (req, res, body, params) => {
+        onMatch: (req, res, db, body, params) => {
 
             respond(req, res, 200, {
                 "filter_id": "1234"
@@ -76,7 +81,7 @@ const endpoints = [ // params is both path params and query params!
     },
     {
         regex: /^GET \/_matrix\/client\/versions$/,
-        onMatch: (req, res, body, params) => {
+        onMatch: (req, res, db, body, params) => {
 
             respond(req, res, 200, {
                 "versions": [
@@ -87,7 +92,7 @@ const endpoints = [ // params is both path params and query params!
     },
     {
         regex: /^GET \/_matrix\/client\/v3\/login$/,
-        onMatch: (req, res, body, params) => {
+        onMatch: (req, res, db, body, params) => {
 
             respond(req, res, 200, {
                 "flows": [
@@ -98,7 +103,7 @@ const endpoints = [ // params is both path params and query params!
     },
     {
         regex: /^POST \/_matrix\/client\/v3\/login$/,
-        onMatch: (req, res, body, params) => {
+        onMatch: (req, res, db, body, params) => {
 
             if (body.type == "m.login.password" && body.identifier.type == "m.id.user") {
 
@@ -119,7 +124,7 @@ const endpoints = [ // params is both path params and query params!
     },
     {
         regex: /^POST \/_matrix\/client\/v3\/keys\/upload$/,
-        onMatch: (req, res, body, params) => {
+        onMatch: (req, res, db, body, params) => {
 
             let signedCount = 0;
 
