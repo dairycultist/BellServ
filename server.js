@@ -1,5 +1,9 @@
 const fs = require("fs");
-const { createServer } = require("node:http"); // https
+const sqlite3 = require("sqlite3").verbose(); // npm install sqlite3
+const { createServer } = require("node:http"); // switch to https later
+
+// https://www.npmjs.com/package/sqlite3
+const db = new sqlite3.Database(":memory:");
 
 // const options = {
 //     key: fs.readFileSync("../private.key.pem"), // path to ssl PRIVATE key from Porkbun
@@ -144,7 +148,7 @@ const endpoints = [ // params is both path params and query params!
     },
 ];
 
-const server = createServer((req, res) => { // options before () for https
+createServer((req, res) => { // options before () for https
 
     const request = req.method + " " + req.url;
 
@@ -173,10 +177,7 @@ const server = createServer((req, res) => { // options before () for https
 
     // default response if no endpoint is matched
     respond(req, res, 404, {});
-});
 
-server.listen(3000, "localhost", () => { // 443 for https
-
-    console.log(`Starting @ http://localhost:3000/`);
-});
+// 443 for https
+}).listen(3000, "localhost", () => { console.log(`Starting @ http://localhost:3000/`); });
 
