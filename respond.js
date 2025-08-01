@@ -54,24 +54,32 @@ const endpoints = [
             if (body.type == "m.login.password" && body.identifier.type == "m.id.user") {
 
                 // attempt to login
-                db.each("SELECT UserIDLocalPart, Password, AccessToken, DeviceID FROM Users", (err, row) => {
+                let loginSuccessful = false;
 
-                    if (body.identifier.user == row.UserIDLocalPart && body.password == row.Password) {
+                db.serialize(() => {
+                    db.each("SELECT UserIDLocalPart, Password, AccessToken, DeviceID FROM Users", (err, row) => {
+
+                        if (!loginSuccessful && body.identifier.user == row.UserIDLocalPart && body.password == row.Password) {
+
+                            console.log("test");
+                            respond(req, res, 200, {
+                                "access_token": row.AccessToken, // this access token is used to authorize other requests
+                                "device_id":
+                                    body.device_id ? body.device_id                 // client provided device_id
+                                    : row.DeviceID != "" ? row.DeviceID             // we have a device_id in the db
+                                    : "device" + Math.floor(Math.random() * 10000), // generate a device_id
+                                "user_id": `@${row.UserIDLocalPart}:fatfur.xyz`
+                            });
+                            loginSuccessful = true;
+                        }
+
+                    }, () => { // anonymous callback function
                         
-                        respond(req, res, 200, {
-                            "access_token": row.AccessToken, // this access token is used to authorize other requests
-                            "device_id":
-                                body.device_id ? body.device_id                 // client provided device_id
-                                : row.DeviceID != "" ? row.DeviceID             // we have a device_id in the db
-                                : "device" + Math.floor(Math.random() * 10000), // generate a device_id
-                            "user_id": `@${row.UserIDLocalPart}:fatfur.xyz`
-                        });
-                        return;
-                    }
+                        // respond 403 if login authentication data did not match any user
+                        if (!loginSuccessful)
+                            respond(req, res, 403, { "errcode": "M_FORBIDDEN", "error": "Invalid request: Username or password incorrect." });
+                    });
                 });
-
-                // respond 403 if login authentication data did not match any user
-                respond(req, res, 403, { "errcode": "M_FORBIDDEN", "error": "Invalid request: Username or password incorrect." });
 
             } else {
                 respond(req, res, 400, { "errcode": "M_UNKNOWN", "error": "Invalid request: Bad login type." });
