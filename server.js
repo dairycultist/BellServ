@@ -39,94 +39,108 @@ function passReqBody(req, res, func) {
 
 const endpoints = [ // params is both path params and query params!
     {
-        regex: /OPTIONS .+/g,
+        regex: /OPTIONS .+/,
         onMatch: (req, res, body, params) => {
+
             respond(req, res, 204, {}); // 204 = No Content, just needs info from headers
         }
     },
     {
-        regex: /GET \/_matrix\/client\/v3\/profile\/ .+/g,
+        regex: /GET \/_matrix\/client\/v3\/profile\/(.+)/,
         onMatch: (req, res, body, params) => {
+
             respond(req, res, 200, {
                 "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
                 "displayname": "Test User"
             });
         }
-    }
+    },
+    {
+        regex: /GET \/_matrix\/client\/v3\/sync.*/,
+        onMatch: (req, res, body, params) => {
+
+            respond(req, res, 200, {
+                "next_batch": "cat",
+                "rooms": {
+                    "invite": {
+                        "!696r7674:example.com": {
+                            "invite_state": {
+                                "events": [
+                                    {
+                                    "content": {
+                                        "name": "My Room Name"
+                                    },
+                                    "sender": "@alice:example.com",
+                                    "state_key": "",
+                                    "type": "m.room.name"
+                                    },
+                                    {
+                                    "content": {
+                                        "membership": "invite"
+                                    },
+                                    "sender": "@alice:example.com",
+                                    "state_key": "@bob:example.com",
+                                    "type": "m.room.member"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    },
+    {
+        regex: /POST \/_matrix\/client\/v3\/user\/.+\/filter/,
+        onMatch: (req, res, body, params) => {
+
+            respond(req, res, 200, {
+                "filter_id": "1234"
+            });
+        }
+    },
+    {
+        regex: /GET \/_matrix\/client\/versions/,
+        onMatch: (req, res, body, params) => {
+
+            respond(req, res, 200, {
+                "versions": [
+                    "v1.15"
+                ]
+            });
+        }
+    },
+    {
+        regex: /GET \/_matrix\/client\/v3\/login/,
+        onMatch: (req, res, body, params) => {
+
+            respond(req, res, 200, {
+                "flows": [
+                    { "type": "m.login.password" }
+                ]
+            });
+        }
+    },
+    // {
+    //     regex: /a/,
+    //     onMatch: (req, res, body, params) => {
+
+    //     }
+    // },
+    // {
+    //     regex: /a/,
+    //     onMatch: (req, res, body, params) => {
+
+    //     }
+    // },
 ];
 
 const server = createServer((req, res) => { // options before () for https
 
     const request = req.method + " " + req.url;
 
-    for (endpoint of endpoints) {
-
-        if (request.match(endpoint.regex)) {
-            
-            endpoint.onMatch(req, res, {}, {});
-            return;
-        }
-    }
-
-    if (request.startsWith("GET /_matrix/client/v3/sync")) {
-
-        respond(req, res, 200, {
-            "next_batch": "cat",
-            "rooms": {
-                "invite": {
-                    "!696r7674:example.com": {
-                        "invite_state": {
-                            "events": [
-                                {
-                                "content": {
-                                    "name": "My Room Name"
-                                },
-                                "sender": "@alice:example.com",
-                                "state_key": "",
-                                "type": "m.room.name"
-                                },
-                                {
-                                "content": {
-                                    "membership": "invite"
-                                },
-                                "sender": "@alice:example.com",
-                                "state_key": "@bob:example.com",
-                                "type": "m.room.member"
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        });
-        return;
-    }
-
-    if (request.match(/POST \/_matrix\/client\/v3\/user\/.+\/filter/g)) {
-
-        respond(req, res, 200, {
-            "filter_id": "1234"
-        });
-        return;
-    }
-
+    // temporarily here
     switch (request) {
-
-        case "GET /_matrix/client/versions":
-            respond(req, res, 200, {
-                "versions": [
-                    "v1.15"
-                ]
-            });
-            return;
-
-        case "GET /_matrix/client/v3/login":
-            respond(req, res, 200, {
-                "flows": [
-                    { "type": "m.login.password" }
-                ]
-            });
-            return;
         
         case "POST /_matrix/client/v3/login":
             passReqBody(req, res, (json) => {
@@ -168,6 +182,14 @@ const server = createServer((req, res) => { // options before () for https
     }
 
     // go through every endpoint to find a match
+    for (endpoint of endpoints) {
+
+        if (request.match(endpoint.regex)) {
+            
+            endpoint.onMatch(req, res, {}, {});
+            return;
+        }
+    }
 
     // default response if no endpoint is matched
     respond(req, res, 404, {});
