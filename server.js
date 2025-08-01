@@ -39,6 +39,12 @@ function passReqBody(req, res, func) {
 
 const server = createServer((req, res) => { // options before () for https
 
+    if (req.method == "OPTIONS") {
+
+        respond(req, res, 204, {}); // 204 = No Content, just needs info from headers
+        return;
+    }
+
     switch (req.method + " " + req.url) {
 
         case "GET /_matrix/client/versions":
@@ -55,10 +61,6 @@ const server = createServer((req, res) => { // options before () for https
                     { "type": "m.login.password" }
                 ]
             });
-            return;
-
-        case "OPTIONS /_matrix/client/v3/login":
-            respond(req, res, 204, {}); // 204 = No Content, just needs info from headers
             return;
         
         case "POST /_matrix/client/v3/login":
@@ -79,6 +81,13 @@ const server = createServer((req, res) => { // options before () for https
                 } else {
                     respond(req, res, 400, { "errcode": "M_UNKNOWN", "error": "Invalid request: Bad login type." });
                 }
+            });
+            return;
+        
+        case "POST /_matrix/client/v3/keys/upload":
+            passReqBody(req, res, (json) => {
+                
+                respond(req, res, 200, { "one_time_key_counts": {} });
             });
             return;
     }
