@@ -37,25 +37,35 @@ function passReqBody(req, res, func) {
     });
 }
 
-// make dictionary with regex -> function (res, body, params), go through every key to find a match, params is both path params and query params
+const endpoints = [ // params is both path params and query params!
+    {
+        regex: /OPTIONS .+/g,
+        onMatch: (req, res, body, params) => {
+            respond(req, res, 204, {}); // 204 = No Content, just needs info from headers
+        }
+    },
+    {
+        regex: /GET \/_matrix\/client\/v3\/profile\/ .+/g,
+        onMatch: (req, res, body, params) => {
+            respond(req, res, 200, {
+                "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
+                "displayname": "Test User"
+            });
+        }
+    }
+];
 
 const server = createServer((req, res) => { // options before () for https
 
     const request = req.method + " " + req.url;
 
-    if (req.method == "OPTIONS") {
+    for (endpoint of endpoints) {
 
-        respond(req, res, 204, {}); // 204 = No Content, just needs info from headers
-        return;
-    }
-
-    if (request.startsWith("GET /_matrix/client/v3/profile/")) {
-
-        respond(req, res, 200, {
-            "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
-            "displayname": "Test User"
-        });
-        return;
+        if (request.match(endpoint.regex)) {
+            
+            endpoint.onMatch(req, res, {}, {});
+            return;
+        }
     }
 
     if (request.startsWith("GET /_matrix/client/v3/sync")) {
@@ -157,7 +167,9 @@ const server = createServer((req, res) => { // options before () for https
             return;
     }
 
-    // default response
+    // go through every endpoint to find a match
+
+    // default response if no endpoint is matched
     respond(req, res, 404, {});
 });
 
