@@ -104,36 +104,32 @@ const endpoints = [
         regex: /^POST \/_matrix\/client\/v3\/keys\/upload$/,
         onMatch: (req, res, db, body, params) => {
 
-            let signedCount = 0;
+            let oneTimeKeyCount = 0;
 
             for (format in body.one_time_keys) {
 
                 if (format.startsWith("signed_curve25519")) {
-                    signedCount++;
 
+                    oneTimeKeyCount++;
                     console.log(`key (${ format.split(":")[1] }): ${ body.one_time_keys[format].key }`);
                 }
             }
             
             respond(req, res, 200, {
                 "one_time_key_counts": {
-                    "signed_curve25519": signedCount
+                    "signed_curve25519": oneTimeKeyCount
                 }
             });
         }
     },
-    {
+    { // done for now, should get displayname and avatar_url from db, and should be able to handle requests for profiles on other homeservers
         regex: /^GET \/_matrix\/client\/v3\/profile\/(.+)$/,
         onMatch: (req, res, db, body, params) => {
 
-            console.log(params);
-
-            respond(req, res, 404, {});
-
-            // respond(req, res, 200, {
-            //     "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
-            //     "displayname": "Test User"
-            // });
+            respond(req, res, 200, {
+                "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
+                "displayname": params[1].split("%3A")[0].substring(3)
+            });
         }
     },
     // {
