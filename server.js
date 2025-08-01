@@ -37,7 +37,11 @@ function passReqBody(req, res, func) {
     });
 }
 
+// make dictionary with regex -> function (res, body, params), go through every key to find a match, params is both path params and query params
+
 const server = createServer((req, res) => { // options before () for https
+
+    const request = req.method + " " + req.url;
 
     if (req.method == "OPTIONS") {
 
@@ -45,7 +49,58 @@ const server = createServer((req, res) => { // options before () for https
         return;
     }
 
-    switch (req.method + " " + req.url) {
+    if (request.startsWith("GET /_matrix/client/v3/profile/")) {
+
+        respond(req, res, 200, {
+            "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
+            "displayname": "Test User"
+        });
+        return;
+    }
+
+    if (request.startsWith("GET /_matrix/client/v3/sync")) {
+
+        respond(req, res, 200, {
+            "next_batch": "cat",
+            "rooms": {
+                "invite": {
+                    "!696r7674:example.com": {
+                        "invite_state": {
+                            "events": [
+                                {
+                                "content": {
+                                    "name": "My Room Name"
+                                },
+                                "sender": "@alice:example.com",
+                                "state_key": "",
+                                "type": "m.room.name"
+                                },
+                                {
+                                "content": {
+                                    "membership": "invite"
+                                },
+                                "sender": "@alice:example.com",
+                                "state_key": "@bob:example.com",
+                                "type": "m.room.member"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        });
+        return;
+    }
+
+    if (request.match(/POST \/_matrix\/client\/v3\/user\/.+\/filter/g)) {
+
+        respond(req, res, 200, {
+            "filter_id": "1234"
+        });
+        return;
+    }
+
+    switch (request) {
 
         case "GET /_matrix/client/versions":
             respond(req, res, 200, {
