@@ -12,10 +12,6 @@ db.serialize(() => {
     // insert test users
     db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', 'device0');");
     db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', 'device1');");
-
-    db.each("SELECT UserIDLocalPart, Password FROM Users", (err, row) => {
-        console.log(row.UserIDLocalPart + ": " + row.Password);
-    });
 });
 
 // const options = {
