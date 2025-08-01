@@ -18,68 +18,14 @@ function respond(req, res, status, body) {
  */
 
 const endpoints = [
-    {
+    { // DONE IMPLEMENTING
         regex: /^OPTIONS .+$/,
         onMatch: (req, res, db, body, params) => {
 
             respond(req, res, 204, {}); // 204 = No Content, just needs info from headers
         }
     },
-    {
-        regex: /^GET \/_matrix\/client\/v3\/profile\/(.+)$/,
-        onMatch: (req, res, db, body, params) => {
-
-            respond(req, res, 200, {
-                "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
-                "displayname": "Test User"
-            });
-        }
-    },
-    {
-        regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
-        onMatch: (req, res, db, body, params) => {
-
-            respond(req, res, 200, {
-                "next_batch": "cat",
-                "rooms": {
-                    "invite": {
-                        "!696r7674:example.com": {
-                            "invite_state": {
-                                "events": [
-                                    {
-                                    "content": {
-                                        "name": "My Room Name"
-                                    },
-                                    "sender": "@alice:example.com",
-                                    "state_key": "",
-                                    "type": "m.room.name"
-                                    },
-                                    {
-                                    "content": {
-                                        "membership": "invite"
-                                    },
-                                    "sender": "@alice:example.com",
-                                    "state_key": "@bob:example.com",
-                                    "type": "m.room.member"
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    },
-    {
-        regex: /^POST \/_matrix\/client\/v3\/user\/.+\/filter$/,
-        onMatch: (req, res, db, body, params) => {
-
-            respond(req, res, 200, {
-                "filter_id": "1234"
-            });
-        }
-    },
-    {
+    { // DONE IMPLEMENTING
         regex: /^GET \/_matrix\/client\/versions$/,
         onMatch: (req, res, db, body, params) => {
 
@@ -90,7 +36,7 @@ const endpoints = [
             });
         }
     },
-    {
+    { // DONE IMPLEMENTING
         regex: /^GET \/_matrix\/client\/v3\/login$/,
         onMatch: (req, res, db, body, params) => {
 
@@ -101,44 +47,98 @@ const endpoints = [
             });
         }
     },
-    {
-        regex: /^POST \/_matrix\/client\/v3\/login$/,
-        onMatch: (req, res, db, body, params) => {
+    // {
+    //     regex: /^GET \/_matrix\/client\/v3\/profile\/(.+)$/,
+    //     onMatch: (req, res, db, body, params) => {
 
-            if (body.type == "m.login.password" && body.identifier.type == "m.id.user") {
+    //         respond(req, res, 200, {
+    //             "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
+    //             "displayname": "Test User"
+    //         });
+    //     }
+    // },
+    // {
+    //     regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
+    //     onMatch: (req, res, db, body, params) => {
 
-                console.log(body.identifier.user + " logging in with password " + body.password);
+    //         respond(req, res, 200, {
+    //             "next_batch": "cat",
+    //             "rooms": {
+    //                 "invite": {
+    //                     "!696r7674:example.com": {
+    //                         "invite_state": {
+    //                             "events": [
+    //                                 {
+    //                                 "content": {
+    //                                     "name": "My Room Name"
+    //                                 },
+    //                                 "sender": "@alice:example.com",
+    //                                 "state_key": "",
+    //                                 "type": "m.room.name"
+    //                                 },
+    //                                 {
+    //                                 "content": {
+    //                                     "membership": "invite"
+    //                                 },
+    //                                 "sender": "@alice:example.com",
+    //                                 "state_key": "@bob:example.com",
+    //                                 "type": "m.room.member"
+    //                                 }
+    //                             ]
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //     }
+    // },
+    // {
+    //     regex: /^POST \/_matrix\/client\/v3\/user\/.+\/filter$/,
+    //     onMatch: (req, res, db, body, params) => {
 
-                respond(req, res, 200, {
-                    "access_token": "abc123", // this access token is used to authorize other requests. we should store it, and associate it with the account that just logged in
-                    "device_id": body.device_id ? body.device_id : "device" + Math.floor(Math.random() * 10000),
-                    "user_id": "@test:fatfur.xyz"
-                });
+    //         respond(req, res, 200, {
+    //             "filter_id": "1234"
+    //         });
+    //     }
+    // },
+    // {
+    //     regex: /^POST \/_matrix\/client\/v3\/login$/,
+    //     onMatch: (req, res, db, body, params) => {
 
-                // respond 403 if the login authentication data was incorrect
+    //         if (body.type == "m.login.password" && body.identifier.type == "m.id.user") {
 
-            } else {
-                respond(req, res, 400, { "errcode": "M_UNKNOWN", "error": "Invalid request: Bad login type." });
-            }
-        }
-    },
-    {
-        regex: /^POST \/_matrix\/client\/v3\/keys\/upload$/,
-        onMatch: (req, res, db, body, params) => {
+    //             console.log(body.identifier.user + " logging in with password " + body.password);
 
-            let signedCount = 0;
+    //             respond(req, res, 200, {
+    //                 "access_token": "abc123", // this access token is used to authorize other requests. we should store it, and associate it with the account that just logged in
+    //                 "device_id": body.device_id ? body.device_id : "device" + Math.floor(Math.random() * 10000),
+    //                 "user_id": "@test:fatfur.xyz"
+    //             });
 
-            for (format in body.one_time_keys) {
-                signedCount++;
-            }
+    //             // respond 403 if the login authentication data was incorrect
+
+    //         } else {
+    //             respond(req, res, 400, { "errcode": "M_UNKNOWN", "error": "Invalid request: Bad login type." });
+    //         }
+    //     }
+    // },
+    // {
+    //     regex: /^POST \/_matrix\/client\/v3\/keys\/upload$/,
+    //     onMatch: (req, res, db, body, params) => {
+
+    //         let signedCount = 0;
+
+    //         for (format in body.one_time_keys) {
+    //             signedCount++;
+    //         }
             
-            respond(req, res, 200, {
-                "one_time_key_counts": {
-                    "signed_curve25519": signedCount
-                }
-            });
-        }
-    },
+    //         respond(req, res, 200, {
+    //             "one_time_key_counts": {
+    //                 "signed_curve25519": signedCount
+    //             }
+    //         });
+    //     }
+    // },
 ];
 
 module.exports = {

@@ -23,12 +23,16 @@ createServer((req, res) => { // options before () for https
             let body = "";
             let params = {};
 
+            // populate path parameters (TODO)
+
+            // populate url parameters
             const urlParams = new URLSearchParams(req.url);
 
             for (const [key, value] of urlParams) {
                 params[key] = value;
             }
 
+            // populate body and call endpoint
             req.on("data", chunk => {
                 body += chunk.toString();
             });
