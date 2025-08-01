@@ -1,13 +1,14 @@
 const fs = require("fs");
 // const qs = require("querystring");
-const { createServer } = require("node:https");
+const { createServer } = require("node:http");
+// const { createServer } = require("node:https");
 
-const options = {
-    key: fs.readFileSync("../private.key.pem"), // path to ssl PRIVATE key from Porkbun
-    cert: fs.readFileSync("../domain.cert.pem"),// path to ssl certificate from Porkbun
-};
+// const options = {
+//     key: fs.readFileSync("../private.key.pem"), // path to ssl PRIVATE key from Porkbun
+//     cert: fs.readFileSync("../domain.cert.pem"),// path to ssl certificate from Porkbun
+// };
 
-const server = createServer(options, (req, res) => {
+const server = createServer((req, res) => { // put options before (req, res)
 
     var status = 404;
     var body = {};
@@ -30,8 +31,8 @@ const server = createServer(options, (req, res) => {
     console.log(req.method + " " + req.url + " >> " + status);
 });
 
-server.listen(443, () => {
+server.listen(3000, "localhost", () => { // 443
 
-    console.log(`Starting @ http://0.0.0.0:443/`);
+    console.log(`Starting @ http://localhost:3000/`);
 });
 
