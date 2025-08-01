@@ -20,7 +20,7 @@ function respond(req, res, status, body) {
     console.log("(" + status + ") " + req.method + " " + req.url);
 }
 
-function passReqBody(req, func) {
+function passReqBody(req, res, func) {
 
     let body = "";
 
@@ -62,12 +62,22 @@ const server = createServer((req, res) => { // options before () for https
             return;
         
         case "POST /_matrix/client/v3/login":
-            passReqBody(req, (json) => {
+            passReqBody(req, res, (json) => {
                 
-                if (json.type == "m.login.password") {
-                    console.log(json);
+                if (json.type == "m.login.password" && json.identifier.type == "m.id.user") {
+
+                    console.log(json.identifier.user + " logging in with password " + json.password);
+
+                    respond(req, res, 200, {
+                        "access_token": "abc123", // this access token is used to authorize other requests. we should store it, and associate it with the account that just logged in
+                        "device_id": json.device_id ? json.device_id : "device" + Math.floor(Math.random() * 10000),
+                        "user_id": "@test:fatfur.xyz"
+                    });
+
+                    // respond 403 if the login authentication data was incorrect
+
                 } else {
-                    respond(req, res, 400, {}); // invalid request (wrong login type)
+                    respond(req, res, 400, { "errcode": "M_UNKNOWN", "error": "Invalid request: Bad login type." });
                 }
             });
             return;
