@@ -145,39 +145,37 @@ const endpoints = [
         regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
         onMatch: (req, res, db, body, params) => {
 
-            console.log(params);
+            respond(req, res, 200, {
+                "next_batch": "cat",
+                "rooms": {
+                    "join": {
+                        "roomid_localpart:fatfur.xyz": {
+                            "summary": {
+                                "m.heroes": [ "@tori:fatfur.xyz" ],
+                                "m.invited_member_count": 0,
+                                "m.joined_member_count": 2
+                            },
+                            "timeline": {
+                                events: [
+                                    {
+                                        "content": {
+                                            "body": "Welcome to fatfur.xyz!",
+                                            "format": "org.matrix.custom.html",
+                                            "formatted_body": "<b>Welcome to fatfur.xyz!</b>",
+                                            "msgtype": "m.text"
+                                        },
+                                        "event_id": "$123:fatfur.xyz", // should be globally unique across ALL homeservers
+                                        "origin_server_ts": 1432735824653,
+                                        "sender": "@neko:fatfur.xyz",
+                                        "type": "m.room.message"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            });
 
-            respond(req, res, 404, {});
-
-            // respond(req, res, 200, {
-            //     "next_batch": "cat",
-            //     "rooms": {
-            //         "invite": {
-            //             "!696r7674:example.com": {
-            //                 "invite_state": {
-            //                     "events": [
-            //                         {
-            //                         "content": {
-            //                             "name": "My Room Name"
-            //                         },
-            //                         "sender": "@alice:example.com",
-            //                         "state_key": "",
-            //                         "type": "m.room.name"
-            //                         },
-            //                         {
-            //                         "content": {
-            //                             "membership": "invite"
-            //                         },
-            //                         "sender": "@alice:example.com",
-            //                         "state_key": "@bob:example.com",
-            //                         "type": "m.room.member"
-            //                         }
-            //                     ]
-            //                 }
-            //             }
-            //         }
-            //     }
-            // });
         }
     },
 ];
