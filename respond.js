@@ -179,6 +179,9 @@ const endpoints = [
         regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
         onMatch: (req, res, db, body, params) => {
 
+            // wait for something to have changed before responding, OR for body.timeout to run out (in which case we'll with empty fields)
+            console.log(body.timeout);
+
             respond(req, res, 200, {
                 "next_batch": "cat",
                 "rooms": {
