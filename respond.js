@@ -66,7 +66,7 @@ const endpoints = [
                             if (body.device_id) { // set our db's DeviceID to what the client sent us
 
                                 deviceID = body.device_id;
-                                db.run(`UPDATE Users SET DeviceID = '${deviceID}' WHERE UserIDLocalPart = ${row.UserIDLocalPart};`);
+                                db.run(`UPDATE Users SET DeviceID = '${deviceID}' WHERE UserIDLocalPart = '${row.UserIDLocalPart}';`);
 
                             } else if (row.DeviceID != "") { // use the DeviceID we store
 
@@ -75,7 +75,7 @@ const endpoints = [
                             } else { // generate a new DeviceID
 
                                 deviceID = "device" + Math.floor(Math.random() * 10000);
-                                db.run(`UPDATE Users SET DeviceID = '${deviceID}' WHERE UserIDLocalPart = ${row.UserIDLocalPart};`);
+                                db.run(`UPDATE Users SET DeviceID = '${deviceID}' WHERE UserIDLocalPart = '${row.UserIDLocalPart}';`);
                             }
 
                             respond(req, res, 200, {

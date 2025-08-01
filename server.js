@@ -10,8 +10,8 @@ db.serialize(() => {
     db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT);");
 
     // insert test users
-    db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', 'device0');");
-    db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', 'device1');");
+    db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '');");
+    db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '');");
 });
 
 // const options = {
