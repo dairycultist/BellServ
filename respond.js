@@ -87,7 +87,7 @@ const endpoints = [
                             loginSuccessful = true;
                         }
 
-                    }, () => { // anonymous callback function
+                    }, () => { // called on complete
                         
                         // respond 403 if login authentication data did not match any user
                         if (!loginSuccessful)
@@ -104,22 +104,55 @@ const endpoints = [
         regex: /^POST \/_matrix\/client\/v3\/keys\/upload$/,
         onMatch: (req, res, db, body, params) => {
 
+            // store DeviceKeys and DeviceSignatures in db as stringified JSON to respond with once queried for them
+            if (body.device_keys)
+                db.run(`UPDATE Users SET DeviceKeys = '${body.device_keys.keys}', DeviceSignatures = '${body.device_keys.signatures}' WHERE DeviceID = '${body.device_keys.device_id}';`);
+
+            // count one_time_keys for response
             let oneTimeKeyCount = 0;
 
-            for (format in body.one_time_keys) {
-
-                if (format.startsWith("signed_curve25519")) {
-
+            for (format in body.one_time_keys)
+                if (format.startsWith("signed_curve25519"))
                     oneTimeKeyCount++;
-                    console.log(`key (${ format.split(":")[1] }): ${ body.one_time_keys[format].key }`);
-                }
-            }
             
             respond(req, res, 200, {
                 "one_time_key_counts": {
                     "signed_curve25519": oneTimeKeyCount
                 }
             });
+        }
+    },
+    { // 
+        regex: /POST \/_matrix\/client\/v3\/keys\/query/,
+        onMatch: (req, res, db, body, params) => {
+
+            let deviceKeys = {};
+
+            db.each("SELECT UserIDLocalPart, DeviceID FROM Users", (err, row) => {
+
+                let userID = `@${ row.UserIDLocalPart }:fatfur.xyz`;
+
+                if (Object.hasOwn(body.device_keys, userID)) {
+
+                    deviceKeys[userID] = {
+                        "algorithms": "signed_curve25519",
+                        "user_id": userID,
+                        "device_id": row.DeviceID,
+                        "keys": {},
+                        "signatures": {}
+                    };
+
+                    delete body.device_keys[userID];
+                }
+
+            }, () => {
+
+                // need to check if some of the requested device_keys are associated with users not on this homeserver
+                // aka if body.device_keys isn't empty by the time we reach this point
+
+                respond(req, res, 200, { "device_keys": deviceKeys });
+            });
+
         }
     },
     { // done for now, should get displayname and avatar_url from db, and should be able to handle requests for profiles on other homeservers
@@ -141,38 +174,38 @@ const endpoints = [
             });
         }
     },
-    {
+    { // not even close to done
         regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
         onMatch: (req, res, db, body, params) => {
 
             respond(req, res, 200, {
                 "next_batch": "cat",
                 "rooms": {
-                    "join": {
-                        "roomid_localpart:fatfur.xyz": {
-                            "summary": {
-                                "m.heroes": [ "@tori:fatfur.xyz" ],
-                                "m.invited_member_count": 0,
-                                "m.joined_member_count": 2
-                            },
-                            "timeline": {
-                                events: [
-                                    {
-                                        "content": {
-                                            "body": "Welcome to fatfur.xyz!",
-                                            "format": "org.matrix.custom.html",
-                                            "formatted_body": "<b>Welcome to fatfur.xyz!</b>",
-                                            "msgtype": "m.text"
-                                        },
-                                        "event_id": "$123:fatfur.xyz", // should be globally unique across ALL homeservers
-                                        "origin_server_ts": 1432735824653,
-                                        "sender": "@neko:fatfur.xyz",
-                                        "type": "m.room.message"
-                                    }
-                                ]
-                            }
-                        }
-                    }
+                    // "join": {
+                    //     "roomid_localpart:fatfur.xyz": {
+                    //         "summary": {
+                    //             "m.heroes": [ "@tori:fatfur.xyz" ],
+                    //             "m.invited_member_count": 0,
+                    //             "m.joined_member_count": 2
+                    //         },
+                    //         "timeline": {
+                    //             events: [
+                    //                 {
+                    //                     "content": {
+                    //                         "body": "Welcome to fatfur.xyz!",
+                    //                         "format": "org.matrix.custom.html",
+                    //                         "formatted_body": "<b>Welcome to fatfur.xyz!</b>",
+                    //                         "msgtype": "m.text"
+                    //                     },
+                    //                     "event_id": "$123:fatfur.xyz", // should be globally unique across ALL homeservers
+                    //                     "origin_server_ts": 1432735824653,
+                    //                     "sender": "@neko:fatfur.xyz",
+                    //                     "type": "m.room.message"
+                    //                 }
+                    //             ]
+                    //         }
+                    //     }
+                    // }
                 }
             });
 

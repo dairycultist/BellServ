@@ -7,11 +7,12 @@ const db = new sqlite3.Database(":memory:"); // https://www.npmjs.com/package/sq
 
 db.serialize(() => {
 
-    db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT);");
+    // we assume the user only has one device lol
+    db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT, DeviceKeys TEXT, DeviceSignatures TEXT);");
 
     // insert test users
-    db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '');");
-    db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '');");
+    db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '', '{}', '{}');");
+    db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '', '{}', '{}');");
 });
 
 // const options = {
