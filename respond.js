@@ -134,8 +134,8 @@ const endpoints = [
 
                 if (Object.hasOwn(body.device_keys, userID)) {
 
-                    deviceKeys[userID] = {
-                        "algorithms": "signed_curve25519",
+                    deviceKeys[userID][row.DeviceID] = {
+                        "algorithms": [ "curve25519", "ed25519" ],
                         "user_id": userID,
                         "device_id": row.DeviceID,
                         "keys": JSON.parse(row.DeviceKeys),

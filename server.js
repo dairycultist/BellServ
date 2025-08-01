@@ -5,21 +5,18 @@ const { respond, endpoints } = require("./respond.js");
 
 const db = new sqlite3.Database("db"); // https://www.npmjs.com/package/sqlite3
 
-db.serialize(() => {
-
-    db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='Users';", (err, row) => {
+db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='Users';", (err, row) => {
+    
+    // create Users table if it doesn't exist
+    if (!row) {
         
-        // create Users table if it doesn't exist
-        if (!row) {
-            
-            // we assume the user only has one device lol
-            db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT, DeviceKeys TEXT, DeviceSignatures TEXT);");
+        // we assume the user only has one device lol
+        db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT, DeviceKeys TEXT, DeviceSignatures TEXT);");
 
-            // insert test users
-            db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '', '{}', '{}');");
-            db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '', '{}', '{}');");
-        }
-    });
+        // insert test users
+        db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '', '{}', '{}');");
+        db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '', '{}', '{}');");
+    }
 });
 
 // const options = {
