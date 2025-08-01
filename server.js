@@ -5,24 +5,28 @@ const { respond, endpoints } = require("./respond.js");
 
 const db = new sqlite3.Database("db"); // https://www.npmjs.com/package/sqlite3
 
-db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='Users';", (err, row) => {
-    
-    // create Users table if it doesn't exist
-    if (!row) {
-        
-        // we assume the user only has one device lol
-        db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT, DeviceKeys TEXT, DeviceSignatures TEXT);");
-
-        // insert test users
-        db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '', '{}', '{}');");
-        db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '', '{}', '{}');");
-    }
-});
-
 // const options = {
 //     key: fs.readFileSync("../private.key.pem"), // path to ssl PRIVATE key from Porkbun
 //     cert: fs.readFileSync("../domain.cert.pem"),// path to ssl certificate from Porkbun
 // };
+
+db.serialize(() => {
+
+    db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='Users';", (err, row) => {
+
+        // create Users table if it doesn't exist
+        if (!row) {
+            
+            // we assume the user only has one device lol
+            db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT, DeviceKeys TEXT, DeviceSignatures TEXT);", [], () => {
+
+                // insert test users
+                db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '', '{}', '{}');");
+                db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '', '{}', '{}');");
+            });
+        }
+    });
+});
 
 createServer((req, res) => { // options before () for https
 

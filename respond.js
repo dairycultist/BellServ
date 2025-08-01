@@ -134,6 +134,7 @@ const endpoints = [
 
                 if (Object.hasOwn(body.device_keys, userID)) {
 
+                    deviceKeys[userID] = {};
                     deviceKeys[userID][row.DeviceID] = {
                         "algorithms": [ "curve25519", "ed25519" ],
                         "user_id": userID,
