@@ -61,6 +61,7 @@ const endpoints = [
 
                         if (!loginSuccessful && body.identifier.user == row.UserIDLocalPart && body.password == row.Password) {
 
+                            let accessToken = row.AccessToken; // this access token is used to authorize other requests
                             let deviceID;
 
                             if (body.device_id) { // set our db's DeviceID to what the client sent us
@@ -79,7 +80,7 @@ const endpoints = [
                             }
 
                             respond(req, res, 200, {
-                                "access_token": row.AccessToken, // this access token is used to authorize other requests
+                                "access_token": accessToken,
                                 "device_id": deviceID,
                                 "user_id": `@${row.UserIDLocalPart}:fatfur.xyz`
                             });
@@ -97,6 +98,28 @@ const endpoints = [
             } else {
                 respond(req, res, 400, { "errcode": "M_UNKNOWN", "error": "Invalid request: Bad login type." });
             }
+        }
+    },
+    {
+        regex: /^POST \/_matrix\/client\/v3\/keys\/upload$/,
+        onMatch: (req, res, db, body, params) => {
+
+            let signedCount = 0;
+
+            for (format in body.one_time_keys) {
+
+                if (format.startsWith("signed_curve25519")) {
+                    signedCount++;
+
+                    console.log(`key (${ format.split(":")[1] }): ${ body.one_time_keys[format].key }`);
+                }
+            }
+            
+            respond(req, res, 200, {
+                "one_time_key_counts": {
+                    "signed_curve25519": signedCount
+                }
+            });
         }
     },
     // {
@@ -150,23 +173,6 @@ const endpoints = [
 
     //         respond(req, res, 200, {
     //             "filter_id": "1234"
-    //         });
-    //     }
-    // },
-    // {
-    //     regex: /^POST \/_matrix\/client\/v3\/keys\/upload$/,
-    //     onMatch: (req, res, db, body, params) => {
-
-    //         let signedCount = 0;
-
-    //         for (format in body.one_time_keys) {
-    //             signedCount++;
-    //         }
-            
-    //         respond(req, res, 200, {
-    //             "one_time_key_counts": {
-    //                 "signed_curve25519": signedCount
-    //             }
     //         });
     //     }
     // },
