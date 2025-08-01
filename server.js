@@ -3,8 +3,20 @@ const sqlite3 = require("sqlite3").verbose(); // npm install sqlite3
 const { createServer } = require("node:http"); // switch to https later
 const { respond, endpoints } = require("./respond.js");
 
-// https://www.npmjs.com/package/sqlite3
-const db = new sqlite3.Database("db");
+const db = new sqlite3.Database(":memory:"); // https://www.npmjs.com/package/sqlite3
+
+db.serialize(() => {
+
+    db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT);");
+
+    // insert test users
+    db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', 'device0');");
+    db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', 'device1');");
+
+    db.each("SELECT UserIDLocalPart, Password FROM Users", (err, row) => {
+        console.log(row.UserIDLocalPart + ": " + row.Password);
+    });
+});
 
 // const options = {
 //     key: fs.readFileSync("../private.key.pem"), // path to ssl PRIVATE key from Porkbun
