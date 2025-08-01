@@ -61,13 +61,26 @@ const endpoints = [
 
                         if (!loginSuccessful && body.identifier.user == row.UserIDLocalPart && body.password == row.Password) {
 
-                            console.log("test");
+                            let deviceID;
+
+                            if (body.device_id) { // set our db's DeviceID to what the client sent us
+
+                                deviceID = body.device_id;
+                                db.run(`UPDATE Users SET DeviceID = '${deviceID}' WHERE UserIDLocalPart = ${row.UserIDLocalPart};`);
+
+                            } else if (row.DeviceID != "") { // use the DeviceID we store
+
+                                deviceID = row.DeviceID;
+
+                            } else { // generate a new DeviceID
+
+                                deviceID = "device" + Math.floor(Math.random() * 10000);
+                                db.run(`UPDATE Users SET DeviceID = '${deviceID}' WHERE UserIDLocalPart = ${row.UserIDLocalPart};`);
+                            }
+
                             respond(req, res, 200, {
                                 "access_token": row.AccessToken, // this access token is used to authorize other requests
-                                "device_id":
-                                    body.device_id ? body.device_id                 // client provided device_id
-                                    : row.DeviceID != "" ? row.DeviceID             // we have a device_id in the db
-                                    : "device" + Math.floor(Math.random() * 10000), // generate a device_id
+                                "device_id": deviceID,
                                 "user_id": `@${row.UserIDLocalPart}:fatfur.xyz`
                             });
                             loginSuccessful = true;
