@@ -36,7 +36,7 @@ db.serialize(() => {
         // create (local) Rooms table if it doesn't exist
         if (!row) {
 
-            db.run("CREATE TABLE Rooms (RoomIDLocalPart TEXT);");
+            db.run("CREATE TABLE Rooms (RoomIDLocalPart TEXT, IsPublic BOOLEAN);");
         }
     });
 });
@@ -44,6 +44,8 @@ db.serialize(() => {
 createServer((req, res) => { // options before () for https
 
     const request = req.method + " " + req.url;
+
+    console.log("      \x1b[90m" + request + "\x1b[0m");
 
     // go through every endpoint to find a match
     for (let endpoint of endpoints) {

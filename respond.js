@@ -219,35 +219,46 @@ const endpoints = [
 
             let syncClient = () => {
 
-                respond(req, res, 200, {
-                    "next_batch": nextBatch,
-                    "rooms": {
-                        // "join": {
-                        //     "roomid_localpart:fatfur.xyz": {
-                        //         "summary": {
-                        //             "m.heroes": [ "@tori:fatfur.xyz" ],
-                        //             "m.invited_member_count": 0,
-                        //             "m.joined_member_count": 2
-                        //         },
-                        //         "timeline": {
-                        //             events: [
-                        //                 {
-                        //                     "content": {
-                        //                         "body": "Welcome to fatfur.xyz!",
-                        //                         "format": "org.matrix.custom.html",
-                        //                         "formatted_body": "<b>Welcome to fatfur.xyz!</b>",
-                        //                         "msgtype": "m.text"
-                        //                     },
-                        //                     "event_id": "$123:fatfur.xyz", // should be globally unique across ALL homeservers
-                        //                     "origin_server_ts": 1432735824653,
-                        //                     "sender": "@neko:fatfur.xyz",
-                        //                     "type": "m.room.message"
-                        //                 }
-                        //             ]
-                        //         }
-                        //     }
-                        // }
-                    }
+                let rooms = {
+                    "invite": {},
+                    "join": {},
+                    "knock": {},
+                    "leave": {}
+                };
+
+                // add all public rooms
+                db.each("SELECT RoomIDLocalPart FROM Rooms WHERE IsPublic=1;", (err, row) => {
+
+                    rooms.join[`!${ row.RoomIDLocalPart }:${ domain }`] = {
+                        "summary": {
+                            "m.heroes": [ "@tori:fatfur.xyz" ],
+                            "m.invited_member_count": 0,
+                            "m.joined_member_count": 2
+                        },
+                        "timeline": {
+                            "events": [
+                                {
+                                    "content": {
+                                        "body": "Welcome to fatfur.xyz!",
+                                        "format": "org.matrix.custom.html",
+                                        "formatted_body": "<b>Welcome to fatfur.xyz!</b>",
+                                        "msgtype": "m.text"
+                                    },
+                                    "event_id": "$123:fatfur.xyz", // should be globally unique across ALL homeservers
+                                    "origin_server_ts": 1432735824653,
+                                    "sender": "@neko:fatfur.xyz",
+                                    "type": "m.room.message"
+                                }
+                            ]
+                        }
+                    };
+
+                }, () => {
+
+                    respond(req, res, 200, {
+                        "next_batch": nextBatch,
+                        "rooms": rooms
+                    });
                 });
             };
 
@@ -330,7 +341,7 @@ const endpoints = [
                     // TODO once we support private rooms, ensure all appropriate users are either joined or invited
 
                     // create room
-                    db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }');`);
+                    db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }', ${ body.visibility == "public" ? 1 : 0 });`);
 
                     respond(req, res, 200, {
                         "room_id": `!${ roomIDLocalPart }:${ domain }`
