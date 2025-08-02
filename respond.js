@@ -227,16 +227,24 @@ const endpoints = [
                 };
 
                 // add all public rooms
-                db.each("SELECT RoomIDLocalPart, CreationTimestamp FROM Rooms WHERE IsPublic=1;", (err, row) => {
+                db.each("SELECT RoomIDLocalPart, Name, CreationTimestamp FROM Rooms WHERE IsPublic=1;", (err, row) => {
 
                     rooms.join[`!${ row.RoomIDLocalPart }:${ domain }`] = {
                         "summary": {
-                            "m.heroes": [ "@tori:fatfur.xyz" ],
+                            "m.heroes": [ "@tori:fatfur.xyz" ], // need to implement for private rooms, which may go unnamed
                             "m.invited_member_count": 0,
                             "m.joined_member_count": 2
                         },
                         "timeline": {
                             "events": [
+                                // {
+                                //     "content": {
+                                //         "name": row.Name
+                                //     },
+                                //     "sender": "@neko:fatfur.xyz",
+                                //     "state_key": "",
+                                //     "type": "m.room.name"
+                                // },
                                 {
                                     "content": {
                                         "body": "Welcome to fatfur.xyz!",
@@ -320,6 +328,7 @@ const endpoints = [
     },
     {
         // ROOM CREATION
+        // doesn't work with private rooms
         regex: /POST \/_matrix\/client\/v3\/createRoom/,
         onMatch: (req, res, db, body, params) => {
 
@@ -343,7 +352,7 @@ const endpoints = [
                     // TODO once we support private rooms, ensure all appropriate users are either joined or invited
 
                     // create room
-                    db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }', ${ Date.now() }, ${ body.visibility == "public" ? 1 : 0 });`);
+                    db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }', '${ body.name ? body.name : "" }', ${ Date.now() }, ${ body.visibility == "public" ? 1 : 0 });`);
 
                     respond(req, res, 200, {
                         "room_id": `!${ roomIDLocalPart }:${ domain }`
