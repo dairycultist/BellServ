@@ -25,7 +25,7 @@ function respond(req, res, status, body) {
 
     res.writeHead(status, {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+        "Access-Control-Allow-Methods": "OPTIONS, POST, GET, PUT",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Max-Age": 2592000, // 30 days
         "Content-Type": "application/json; charset=utf-8"
@@ -227,7 +227,7 @@ const endpoints = [
                 };
 
                 // add all public rooms
-                db.each("SELECT RoomIDLocalPart, Name, CreationTimestamp FROM Rooms WHERE IsPublic=1;", (err, row) => {
+                db.each("SELECT RoomIDLocalPart, Name, CreationTimestamp, TimelineEvents FROM Rooms WHERE IsPublic=1;", (err, row) => {
 
                     let roomID = `!${ row.RoomIDLocalPart }:${ domain }`;
 
@@ -248,21 +248,8 @@ const endpoints = [
                                 }
                             ]
                         },
-                        "timeline": { //TimelineEvents
-                            "events": [
-                                // {
-                                //     "content": {
-                                //         "body": "Welcome to fatfur.xyz!",
-                                //         "format": "org.matrix.custom.html",
-                                //         "formatted_body": "<b>Welcome to fatfur.xyz!</b>",
-                                //         "msgtype": "m.text"
-                                //     },
-                                //     "event_id": "$123:fatfur.xyz", // should be globally unique across ALL homeservers
-                                //     "origin_server_ts": row.CreationTimestamp,
-                                //     "sender": "@neko:fatfur.xyz",
-                                //     "type": "m.room.message"
-                                // }
-                            ]
+                        "timeline": {
+                            "events": JSON.parse(row.TimelineEvents)
                         }
                     };
 
@@ -358,7 +345,7 @@ const endpoints = [
                     // no idea how to access the room creator, it's not anywhere in this post request
 
                     // create room
-                    db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }', '${ body.name ? body.name : "" }', ${ Date.now() }, ${ body.visibility == "public" ? 1 : 0 });`);
+                    db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }', '${ body.name ? body.name : "" }', ${ Date.now() }, ${ body.visibility == "public" ? 1 : 0 }, '[]');`);
 
                     respond(req, res, 200, {
                         "room_id": `!${ roomIDLocalPart }:${ domain }`
@@ -374,6 +361,48 @@ const endpoints = [
                     });
                 }
             });
+        }
+    },
+    {
+        // MESSAGE POSTING TO A ROOM
+        regex: /^PUT \/_matrix\/client\/v3\/rooms\/(.+)\/send\/(.+)\/(.+)$/,
+        onMatch: (req, res, db, body, params) => {
+
+            if (body.msgtype == "m.text") {
+
+                let messageID = randomID(12);
+
+                // TODO make this actually append real message :)
+                // body.body;
+
+                db.run(`UPDATE Rooms SET TimelineEvents = '${
+                    
+                    `[
+                        {
+                            "content": {
+                                "body": "Welcome to fatfur.xyz!",
+                                "format": "org.matrix.custom.html",
+                                "formatted_body": "<b>Welcome to fatfur.xyz!</b>",
+                                "msgtype": "m.text"
+                            },
+                            "event_id": "$${ messageID }:${ domain }",
+                            "origin_server_ts": 12345,
+                            "sender": "@neko:${ domain }",
+                            "type": "m.room.message"
+                        }
+                    ]`
+
+                }' WHERE RoomIDLocalPart = '${ params[1].split("%3A")[0].substring(1) }';`);
+
+                respond(req, res, 200, { "event_id": `$${ messageID }:${ domain }` }); // this should be globally unique, but I'm not doing that right now lol
+
+            } else {
+
+                respond(req, res, 400, {
+                    "errcode": "M_UNKNOWN",
+                    "error": "This server currently only accepts text messages!"
+                });
+            }
         }
     }
 ];
