@@ -1,3 +1,5 @@
+const domain = "fatfur.xyz";
+
 function request() {
     // implement later for server-server communication
 }
@@ -91,7 +93,7 @@ const endpoints = [
                             respond(req, res, 200, {
                                 "access_token": accessToken,
                                 "device_id": deviceID,
-                                "user_id": `@${row.UserIDLocalPart}:fatfur.xyz`
+                                "user_id": `@${row.UserIDLocalPart}:${domain}`
                             });
                             loginSuccessful = true;
                         }
@@ -143,7 +145,7 @@ const endpoints = [
 
             db.each("SELECT UserIDLocalPart, DeviceID, DeviceKeys, DeviceSignatures FROM Users", (err, row) => {
 
-                let userID = `@${ row.UserIDLocalPart }:fatfur.xyz`;
+                let userID = `@${ row.UserIDLocalPart }:${domain}`;
 
                 if (Object.hasOwn(body.device_keys, userID)) {
 
@@ -265,7 +267,7 @@ const endpoints = [
 
             db.each("SELECT UserIDLocalPart FROM Users", (err, row) => {
 
-                let userID = `@${ row.UserIDLocalPart }:fatfur.xyz`;
+                let userID = `@${ row.UserIDLocalPart }:${domain}`;
 
                 if (userID.includes(body.search_term))
                     results.push({ "user_id": userID });
