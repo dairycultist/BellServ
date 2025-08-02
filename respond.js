@@ -227,7 +227,7 @@ const endpoints = [
                 };
 
                 // add all public rooms
-                db.each("SELECT RoomIDLocalPart FROM Rooms WHERE IsPublic=1;", (err, row) => {
+                db.each("SELECT RoomIDLocalPart, CreationTimestamp FROM Rooms WHERE IsPublic=1;", (err, row) => {
 
                     rooms.join[`!${ row.RoomIDLocalPart }:${ domain }`] = {
                         "summary": {
@@ -245,7 +245,7 @@ const endpoints = [
                                         "msgtype": "m.text"
                                     },
                                     "event_id": "$123:fatfur.xyz", // should be globally unique across ALL homeservers
-                                    "origin_server_ts": 1432735824653,
+                                    "origin_server_ts": row.CreationTimestamp,
                                     "sender": "@neko:fatfur.xyz",
                                     "type": "m.room.message"
                                 }
@@ -343,7 +343,7 @@ const endpoints = [
                     // TODO once we support private rooms, ensure all appropriate users are either joined or invited
 
                     // create room
-                    db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }', ${ body.visibility == "public" ? 1 : 0 });`);
+                    db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }', ${ Date.now() }, ${ body.visibility == "public" ? 1 : 0 });`);
 
                     respond(req, res, 200, {
                         "room_id": `!${ roomIDLocalPart }:${ domain }`

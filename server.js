@@ -36,7 +36,7 @@ db.serialize(() => {
         // create (local) Rooms table if it doesn't exist
         if (!row) {
 
-            db.run("CREATE TABLE Rooms (RoomIDLocalPart TEXT, IsPublic BOOLEAN);");
+            db.run("CREATE TABLE Rooms (RoomIDLocalPart TEXT, CreationTimestamp INTEGER, IsPublic BOOLEAN);");
         }
     });
 });
