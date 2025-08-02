@@ -235,15 +235,35 @@ const endpoints = [
             }
         }
     },
-    { // not done, need to poll other servers given the searched user isn't local to this homeserver
+    { // not done, need to poll other servers given the searched user isn't local to this homeserver, and also match by display_name as well
         regex: /^POST \/_matrix\/client\/v3\/user_directory\/search$/,
         onMatch: (req, res, db, body, params) => {
 
-            respond(req, res, 200, {
-                "limited": false,
-                "results": [
-                    { "user_id": body.search_term }
-                ]
+            let limited = false;
+            let results = [];
+
+            db.each("SELECT UserIDLocalPart FROM Users", (err, row) => {
+
+                let userID = `@${ row.UserIDLocalPart }:fatfur.xyz`;
+
+                if (userID.includes(body.search_term))
+                    results.push({ "user_id": userID });
+
+            }, () => {
+
+                // ensure we're not over the requested limit
+                if (results.length > body.limit) {
+
+                    limited = true;
+
+                    while (results.length > body.limit)
+                        results.pop();
+                }
+
+                respond(req, res, 200, {
+                    "limited": limited,
+                    "results": results
+                });
             });
         }
     }
