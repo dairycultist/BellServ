@@ -14,18 +14,20 @@ function respond(req, res, status, body) {
 
 /*
  * onMatch(req, res, db, body, params)
- * - params includes both path params (0, 1, 2...) and query params ("key1", "key2", "key3"...)
+ * - params includes both path params (1, 2, 3...) and query params ("key1", "key2", "key3"...)
  */
 
 const endpoints = [
-    { // DONE IMPLEMENTING
+    {
+        // HTML OPTIONS (100% DONE)
         regex: /^OPTIONS .+$/,
         onMatch: (req, res, db, body, params) => {
 
             respond(req, res, 204, {}); // 204 = No Content, just needs info from headers
         }
     },
-    { // DONE IMPLEMENTING
+    {
+        // QUERYING MATRIX API VERSION (100% DONE)
         regex: /^GET \/_matrix\/client\/versions$/,
         onMatch: (req, res, db, body, params) => {
 
@@ -36,7 +38,8 @@ const endpoints = [
             });
         }
     },
-    { // DONE IMPLEMENTING
+    {
+        // QUERYING APPROPRIATE LOGIN FORMAT (100% DONE)
         regex: /^GET \/_matrix\/client\/v3\/login$/,
         onMatch: (req, res, db, body, params) => {
 
@@ -47,7 +50,9 @@ const endpoints = [
             });
         }
     },
-    { // done for now, still need to make sure this access token stuff is generated automatically, and that we can also log into users not on this homeserver
+    {
+        // LOGIN
+        // done for now, still need to make sure this access token stuff is generated automatically, and that we can also log into users not on this homeserver
         regex: /^POST \/_matrix\/client\/v3\/login$/,
         onMatch: (req, res, db, body, params) => {
 
@@ -101,6 +106,8 @@ const endpoints = [
         }
     },
     {
+        // KEY UPLOADING
+        // done for now, does not store fallback_keys or one_time_keys
         regex: /^POST \/_matrix\/client\/v3\/keys\/upload$/,
         onMatch: (req, res, db, body, params) => {
 
@@ -122,7 +129,9 @@ const endpoints = [
             });
         }
     },
-    { // 
+    {
+        // KEY FETCHING
+        // done for now (idk what keys are for)
         regex: /POST \/_matrix\/client\/v3\/keys\/query/,
         onMatch: (req, res, db, body, params) => {
 
@@ -156,7 +165,9 @@ const endpoints = [
 
         }
     },
-    { // done for now, should get displayname and avatar_url from db, and should be able to handle requests for profiles on other homeservers
+    {
+        // PROFILE FETCHING
+        // done for now, should get displayname and avatar_url from db, and should be able to handle requests for profiles on other homeservers
         regex: /^GET \/_matrix\/client\/v3\/profile\/(.+)$/,
         onMatch: (req, res, db, body, params) => {
 
@@ -166,7 +177,9 @@ const endpoints = [
             });
         }
     },
-    { // we are simply ignoring filters for now. in the future we should associate a filter and relevant filter information with a User
+    {
+        // FILTER REGISTRATION
+        // we are simply ignoring filters for now. in the future we should associate a filter and relevant filter information with a User
         regex: /^POST \/_matrix\/client\/v3\/user\/.+\/filter$/,
         onMatch: (req, res, db, body, params) => {
 
@@ -175,7 +188,9 @@ const endpoints = [
             });
         }
     },
-    { // not even close to done, needs to actually sync content
+    {
+        // SYNCING CLIENT
+        // not even close to done, needs to actually sync content
         regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
         onMatch: (req, res, db, body, params) => {
 
@@ -235,7 +250,9 @@ const endpoints = [
             }
         }
     },
-    { // not done, need to poll other servers given the searched user isn't local to this homeserver, and also match by display_name as well
+    {
+        // USER SEARCHING
+        // not done, need to poll other servers given the searched user isn't local to this homeserver, and also match by display_name as well
         regex: /^POST \/_matrix\/client\/v3\/user_directory\/search$/,
         onMatch: (req, res, db, body, params) => {
 
