@@ -1,3 +1,7 @@
+function request() {
+    // implement later for server-server communication
+}
+
 function respond(req, res, status, body) {
 
     res.writeHead(status, {
@@ -282,6 +286,16 @@ const endpoints = [
                     "results": results
                 });
             });
+        }
+    },
+    {
+        // ROOM CREATION
+        regex: /POST \/_matrix\/client\/v3\/createRoom/,
+        onMatch: (req, res, db, body, params) => {
+
+            console.log(body);
+
+            respond(req, res, 404, {});
         }
     }
 ];

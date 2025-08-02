@@ -14,20 +14,29 @@ db.serialize(() => {
 
     db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='Users';", (err, row) => {
 
-        // create Users table if it doesn't exist
+        // create (local) Users table if it doesn't exist
         if (!row) {
             
-            // we assume the user only has one device lol
-            db.run("CREATE TABLE Users (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT, DeviceID TEXT, DeviceKeys TEXT, DeviceSignatures TEXT);", [], () => {
+            db.run( // we assume the user only has one device lol
+                `CREATE TABLE Users
+                (UserIDLocalPart TEXT, Password TEXT, AccessToken TEXT,
+                DeviceID TEXT, DeviceKeys TEXT, DeviceSignatures TEXT,
+                InvitedRooms TEXT, JoinedRooms TEXT, KnockedRooms TEXT, LeftRooms TEXT);`, // (js list of room ids)
+                [], () => {
 
                 // insert test users
-                db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '', '{}', '{}');");
-                db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '', '{}', '{}');");
-
-                // TODO store InvitedRooms, JoinedRooms, KnockedRooms, LeftRooms (list of room ids)
+                db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '', '{}', '{}', '[]', '[]', '[]', '[]');");
+                db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '', '{}', '{}', '[]', '[]', '[]', '[]');");
             });
+        }
+    });
 
-            // TODO local Rooms table
+    db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='Rooms';", (err, row) => {
+
+        // create (local) Rooms table if it doesn't exist
+        if (!row) {
+
+            db.run("CREATE TABLE Rooms (RoomIDLocalPart TEXT);");
         }
     });
 });
