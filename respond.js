@@ -229,22 +229,43 @@ const endpoints = [
                 // add all public rooms
                 db.each("SELECT RoomIDLocalPart, Name, CreationTimestamp FROM Rooms WHERE IsPublic=1;", (err, row) => {
 
-                    rooms.join[`!${ row.RoomIDLocalPart }:${ domain }`] = {
+                    let roomID = `!${ row.RoomIDLocalPart }:${ domain }`;
+
+                    rooms.join[roomID] = {
                         "summary": {
                             "m.heroes": [ "@tori:fatfur.xyz" ], // need to implement for private rooms, which may go unnamed
                             "m.invited_member_count": 0,
                             "m.joined_member_count": 2
                         },
+                        "state": {
+                            "events": [
+                        //         {
+                        //             "content": {
+                        //                 "name": row.Name
+                        //             },
+                        //             "sender": "@neko:fatfur.xyz",
+                        //             "state_key": "",
+                        //             "type": "m.room.name"
+                        //         }
+                                {
+                                    "content": {
+                                        "name": "The room name"
+                                    },
+                                    "event_id": "$143273582443PhrSn:" + domain,
+                                    "origin_server_ts": 1432735824653,
+                                    "room_id": roomID,
+                                    "sender": "@neko:" + domain,
+                                    "state_key": "",
+                                    "type": "m.room.name",
+                                    "unsigned": {
+                                        "age": 1234,
+                                        "membership": "join"
+                                    }
+                                }
+                            ]
+                        },
                         "timeline": {
                             "events": [
-                                // {
-                                //     "content": {
-                                //         "name": row.Name
-                                //     },
-                                //     "sender": "@neko:fatfur.xyz",
-                                //     "state_key": "",
-                                //     "type": "m.room.name"
-                                // },
                                 {
                                     "content": {
                                         "body": "Welcome to fatfur.xyz!",
