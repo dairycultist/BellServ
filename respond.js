@@ -312,6 +312,14 @@ const endpoints = [
         regex: /POST \/_matrix\/client\/v3\/createRoom/,
         onMatch: (req, res, db, body, params) => {
 
+            if (body.visibility != "public") {
+
+                respond(req, res, 400, {
+                    "errcode": "M_UNKNOWN",
+                    "error": "This server currently only supports public rooms!"
+                });
+            }
+
             let roomIDLocalPart = "room" + randomID();
 
             // check if this ID somehow already exists. if it does, just send a 400 error saying to try again
@@ -319,6 +327,9 @@ const endpoints = [
 
                 if (!row) {
 
+                    // TODO once we support private rooms, ensure all appropriate users are either joined or invited
+
+                    // create room
                     db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }');`);
 
                     respond(req, res, 200, {
