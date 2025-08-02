@@ -1,5 +1,20 @@
 const domain = "fatfur.xyz";
 
+function randomID(length = 6) {
+
+    const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    const charCount = characters.length;
+
+    let id = "";
+
+    for (let i=0; i<length; i++) {
+
+        id += characters.charAt(Math.floor(Math.random() * charCount));
+    }
+
+    return id;
+}
+
 function request() {
     // implement later for server-server communication
 }
@@ -86,14 +101,14 @@ const endpoints = [
 
                             } else { // generate a new DeviceID
 
-                                deviceID = "device" + Math.floor(Math.random() * 10000);
+                                deviceID = "device" + randomID();
                                 db.run(`UPDATE Users SET DeviceID = '${deviceID}' WHERE UserIDLocalPart = '${row.UserIDLocalPart}';`);
                             }
 
                             respond(req, res, 200, {
                                 "access_token": accessToken,
                                 "device_id": deviceID,
-                                "user_id": `@${row.UserIDLocalPart}:${domain}`
+                                "user_id": `@${ row.UserIDLocalPart }:${ domain }`
                             });
                             loginSuccessful = true;
                         }
@@ -145,7 +160,7 @@ const endpoints = [
 
             db.each("SELECT UserIDLocalPart, DeviceID, DeviceKeys, DeviceSignatures FROM Users", (err, row) => {
 
-                let userID = `@${ row.UserIDLocalPart }:${domain}`;
+                let userID = `@${ row.UserIDLocalPart }:${ domain }`;
 
                 if (Object.hasOwn(body.device_keys, userID)) {
 
@@ -267,7 +282,7 @@ const endpoints = [
 
             db.each("SELECT UserIDLocalPart FROM Users", (err, row) => {
 
-                let userID = `@${ row.UserIDLocalPart }:${domain}`;
+                let userID = `@${ row.UserIDLocalPart }:${ domain }`;
 
                 if (userID.includes(body.search_term))
                     results.push({ "user_id": userID });
@@ -295,9 +310,27 @@ const endpoints = [
         regex: /POST \/_matrix\/client\/v3\/createRoom/,
         onMatch: (req, res, db, body, params) => {
 
-            console.log(body);
+            let roomIDLocalPart = "room" + randomID();
 
-            respond(req, res, 404, {});
+            // check if this ID somehow already exists. if it does, just send a 400 error saying to try again
+            db.get(`SELECT RoomIDLocalPart FROM Rooms WHERE RoomIDLocalPart='${ roomIDLocalPart }';`, (err, row) => {
+
+                if (!row) {
+
+                    db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }');`);
+
+                    respond(req, res, 200, {
+                        "room_id": `!${ roomIDLocalPart }:${ domain }`
+                    });
+
+                } else {
+
+                    respond(req, res, 400, {
+                        "errcode": "M_UNKNOWN",
+                        "error": "Please try again."
+                    });
+                }
+            });
         }
     }
 ];
