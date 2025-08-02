@@ -103,7 +103,7 @@ const endpoints = [
 
                             } else { // generate a new DeviceID
 
-                                deviceID = "device" + randomID();
+                                deviceID = randomID();
                                 db.run(`UPDATE Users SET DeviceID = '${deviceID}' WHERE UserIDLocalPart = '${row.UserIDLocalPart}';`);
                             }
 
@@ -232,11 +232,6 @@ const endpoints = [
                     let roomID = `!${ row.RoomIDLocalPart }:${ domain }`;
 
                     rooms.join[roomID] = {
-                        "summary": {
-                            "m.heroes": [ "@tori:fatfur.xyz" ], // need to implement for private rooms, which may go unnamed
-                            "m.invited_member_count": 0,
-                            "m.joined_member_count": 2
-                        },
                         "state": {
                             "events": [
                                 // https://spec.matrix.org/v1.15/client-server-api/#mroomname
@@ -352,7 +347,7 @@ const endpoints = [
                 return;
             }
 
-            let roomIDLocalPart = "room" + randomID();
+            let roomIDLocalPart = randomID();
 
             // check if this ID somehow already exists. if it does, just send a 400 error saying to try again
             db.get(`SELECT RoomIDLocalPart FROM Rooms WHERE RoomIDLocalPart='${ roomIDLocalPart }';`, (err, row) => {
@@ -368,7 +363,7 @@ const endpoints = [
                         "room_id": `!${ roomIDLocalPart }:${ domain }`
                     });
 
-                    nextBatch = "since" + randomID(); // change the internal state, allowing sync functions to realize "hey something changed"
+                    nextBatch = randomID(); // change the internal state, allowing sync functions to realize "hey something changed"
 
                 } else {
 
