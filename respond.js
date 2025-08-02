@@ -217,7 +217,7 @@ const endpoints = [
         regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
         onMatch: (req, res, db, body, params) => {
 
-            let syncClient = () => {
+            let syncClient = (thisBatch) => {
 
                 let rooms = {
                     "invite": {},
@@ -256,7 +256,7 @@ const endpoints = [
                 }, () => {
 
                     respond(req, res, 200, {
-                        "next_batch": nextBatch,
+                        "next_batch": thisBatch,
                         "rooms": rooms
                     });
                 });
@@ -276,7 +276,7 @@ const endpoints = [
                     timeLeft -= 2000;
 
                     if (params.since != nextBatch || timeLeft <= 0) {
-                        syncClient();
+                        syncClient(nextBatch); // in case global nextBatch updates before we have a chance to even respond, we pass it now instead of after doing slow db polls
                         clearInterval(interval);
                     }
 
@@ -329,6 +329,8 @@ const endpoints = [
                     "errcode": "M_UNKNOWN",
                     "error": "This server currently only supports public rooms!"
                 });
+
+                return;
             }
 
             let roomIDLocalPart = "room" + randomID();
