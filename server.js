@@ -23,7 +23,11 @@ db.serialize(() => {
                 // insert test users
                 db.run("INSERT INTO Users VALUES ('neko', 'password123', 'abc', '', '{}', '{}');");
                 db.run("INSERT INTO Users VALUES ('tori', 'unsafepass', 'xyz', '', '{}', '{}');");
+
+                // TODO store InvitedRooms, JoinedRooms, KnockedRooms, LeftRooms (list of room ids)
             });
+
+            // TODO local Rooms table
         }
     });
 });

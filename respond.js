@@ -161,7 +161,7 @@ const endpoints = [
         onMatch: (req, res, db, body, params) => {
 
             respond(req, res, 200, {
-                "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s",
+                // "avatar_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgiR49HzZQzRhM6sBgjbtNZmmxHZAm8_lwgw&s", // https://spec.matrix.org/v1.15/client-server-api/#matrix-content-mxc-uris
                 "displayname": params[1].split("%3A")[0].substring(3)
             });
         }
@@ -175,7 +175,7 @@ const endpoints = [
             });
         }
     },
-    { // not even close to done
+    { // not even close to done, needs to actually sync content
         regex: /^GET \/_matrix\/client\/v3\/sync.*$/,
         onMatch: (req, res, db, body, params) => {
 
@@ -235,6 +235,18 @@ const endpoints = [
             }
         }
     },
+    { // not done, need to poll other servers given the searched user isn't local to this homeserver
+        regex: /^POST \/_matrix\/client\/v3\/user_directory\/search$/,
+        onMatch: (req, res, db, body, params) => {
+
+            respond(req, res, 200, {
+                "limited": false,
+                "results": [
+                    { "user_id": body.search_term }
+                ]
+            });
+        }
+    }
 ];
 
 module.exports = {
