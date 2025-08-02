@@ -1,5 +1,7 @@
 const domain = "fatfur.xyz";
 
+let nextBatch = "";
+
 function randomID(length = 6) {
 
     const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -218,7 +220,7 @@ const endpoints = [
             let syncClient = () => {
 
                 respond(req, res, 200, {
-                    "next_batch": "cat",
+                    "next_batch": nextBatch,
                     "rooms": {
                         // "join": {
                         //     "roomid_localpart:fatfur.xyz": {
@@ -262,7 +264,7 @@ const endpoints = [
 
                     timeLeft -= 2000;
 
-                    if (timeLeft <= 0) {
+                    if (params.since != nextBatch || timeLeft <= 0) {
                         syncClient();
                         clearInterval(interval);
                     }
@@ -322,6 +324,8 @@ const endpoints = [
                     respond(req, res, 200, {
                         "room_id": `!${ roomIDLocalPart }:${ domain }`
                     });
+
+                    nextBatch = "since" + randomID(); // change the internal state, allowing sync functions to realize "hey something changed"
 
                 } else {
 
