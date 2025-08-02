@@ -248,20 +248,20 @@ const endpoints = [
                                 }
                             ]
                         },
-                        "timeline": {
+                        "timeline": { //TimelineEvents
                             "events": [
-                                {
-                                    "content": {
-                                        "body": "Welcome to fatfur.xyz!",
-                                        "format": "org.matrix.custom.html",
-                                        "formatted_body": "<b>Welcome to fatfur.xyz!</b>",
-                                        "msgtype": "m.text"
-                                    },
-                                    "event_id": "$123:fatfur.xyz", // should be globally unique across ALL homeservers
-                                    "origin_server_ts": row.CreationTimestamp,
-                                    "sender": "@neko:fatfur.xyz",
-                                    "type": "m.room.message"
-                                }
+                                // {
+                                //     "content": {
+                                //         "body": "Welcome to fatfur.xyz!",
+                                //         "format": "org.matrix.custom.html",
+                                //         "formatted_body": "<b>Welcome to fatfur.xyz!</b>",
+                                //         "msgtype": "m.text"
+                                //     },
+                                //     "event_id": "$123:fatfur.xyz", // should be globally unique across ALL homeservers
+                                //     "origin_server_ts": row.CreationTimestamp,
+                                //     "sender": "@neko:fatfur.xyz",
+                                //     "type": "m.room.message"
+                                // }
                             ]
                         }
                     };
@@ -334,7 +334,7 @@ const endpoints = [
     {
         // ROOM CREATION
         // doesn't work with private rooms
-        regex: /POST \/_matrix\/client\/v3\/createRoom/,
+        regex: /^POST \/_matrix\/client\/v3\/createRoom$/,
         onMatch: (req, res, db, body, params) => {
 
             if (body.visibility != "public") {
@@ -355,6 +355,7 @@ const endpoints = [
                 if (!row) {
 
                     // TODO once we support private rooms, ensure all appropriate users are either joined or invited
+                    // no idea how to access the room creator, it's not anywhere in this post request
 
                     // create room
                     db.run(`INSERT INTO Rooms VALUES ('${ roomIDLocalPart }', '${ body.name ? body.name : "" }', ${ Date.now() }, ${ body.visibility == "public" ? 1 : 0 });`);
