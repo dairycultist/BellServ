@@ -239,28 +239,17 @@ const endpoints = [
                         },
                         "state": {
                             "events": [
-                        //         {
-                        //             "content": {
-                        //                 "name": row.Name
-                        //             },
-                        //             "sender": "@neko:fatfur.xyz",
-                        //             "state_key": "",
-                        //             "type": "m.room.name"
-                        //         }
+                                // https://spec.matrix.org/v1.15/client-server-api/#mroomname
                                 {
                                     "content": {
-                                        "name": "The room name"
+                                        "name": row.Name
                                     },
                                     "event_id": "$143273582443PhrSn:" + domain,
-                                    "origin_server_ts": 1432735824653,
+                                    "origin_server_ts": row.CreationTimestamp,
                                     "room_id": roomID,
                                     "sender": "@neko:" + domain,
                                     "state_key": "",
-                                    "type": "m.room.name",
-                                    "unsigned": {
-                                        "age": 1234,
-                                        "membership": "join"
-                                    }
+                                    "type": "m.room.name"
                                 }
                             ]
                         },
